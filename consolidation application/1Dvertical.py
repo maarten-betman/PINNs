@@ -1,5 +1,5 @@
 """
-@author: Maziar Raissi
+@author: Maziar Raissi; adjusted by Thomas Vergote
 """
 
 import sys
@@ -14,6 +14,7 @@ from plotting import newfig, savefig
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.gridspec as gridspec
 import time
+import pandas as pd
 
 np.random.seed(1234)
 tf.set_random_seed(1234)
@@ -107,7 +108,7 @@ class PhysicsInformedNN:
         u_t = tf.gradients(u, t)[0]
         u_x = tf.gradients(u, x)[0]
         u_xx = tf.gradients(u_x, x)[0]
-        f = u_t + lambda_1*u*u_x - lambda_2*u_xx
+        f = u_t - lambda_1*u_xx #lambda_1*u*u_x - 
         
         return f
     
@@ -155,11 +156,13 @@ if __name__ == "__main__":
     N_u = 2000
     layers = [2, 20, 20, 20, 20, 20, 20, 20, 20, 1]
     
-    data = scipy.io.loadmat('/home/thomasvergote/PINNs/appendix/Data/burgers_shock.mat')
-    
-    t = data['t'].flatten()[:,None]
-    x = data['x'].flatten()[:,None]
-    Exact = np.real(data['usol']).T
+    #data = scipy.io.loadmat('/home/thomasvergote/PINNs/appendix/Data/burgers_shock.mat')
+    data=pd.read_csv('/home/thomasvergote/PINNs/consolidation application/data.csv',index_col=0)
+    t=pd.to_numeric(data.columns).values[:,None]
+    x=pd.to_numeric(data.index).values[:,None]
+    #t = 10**np.arange(-2,2,0.1)[:,None]
+    #x = data['x'].flatten()[:,None]
+    Exact = np.real(data).T
     
     X, T = np.meshgrid(x,t)
     
